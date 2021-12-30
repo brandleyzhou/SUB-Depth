@@ -34,15 +34,14 @@ class DepthDecoderV2(nn.Module):
         for s in self.scales:
             self.convs[("dispconv", s)] = Conv3x3(self.num_ch_dec[s], self.num_output_channels)
         self.decoder = nn.ModuleList(list(self.convs.values()))
-        self.sigmoid = nn.Sigmoid()#why not relu?
+        self.sigmoid = nn.Sigmoid()
     
     def forward(self, input_features):
         self.outputs = {}
-        # decoder
         x = input_features[-1]
-        for i in range(4, -1, -1):#[4,3,2,1,0]
+        for i in range(4, -1, -1):
             x = self.convs[("upconv", i, 0)](x)
-            x = [upsample(x)]#this function in layers.py
+            x = [upsample(x)]
             if self.use_skips and i > 0:
                 x += [input_features[i - 1]]
             x = torch.cat(x, 1)
